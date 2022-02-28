@@ -1,5 +1,4 @@
 import icons from '../../img/icons.svg'; // Parcel 1 
-
 export default class View {
   _data;
   render(data) {
@@ -8,6 +7,40 @@ export default class View {
     this._data = data;
     const markup = this._generateMarkup();
     this._clear(markup);
+  }
+
+  update(data) {
+    // if (!data || (Array.isArray(data) && data.length === 0)) return this.renderError();
+
+    this._data = data;
+    const newMarkup = this._generateMarkup();
+
+    const newDOM = document.createRange().createContextualFragment(newMarkup);
+
+    const newElements = Array.from(newDOM.querySelectorAll('*'));
+
+    const curElements = Array.from(this._parentElement.querySelectorAll('*'));
+    // console.log('curElements:', curElements);
+    // console.log('newElements:', newElements);
+
+    newElements.forEach((newEl, i) => {
+      const curEl = curElements[i];
+
+      // Update changed TEXT
+      if (!newEl.isEqualNode(curEl) && newEl.firstChild?.nodeValue.trim() !== '') {
+        // console.log('curEl:', curEl);
+        // console.log('newEl:', newEl);
+        // console.log(newEl.isEqualNode(curEl));
+        // console.log('💥', newEl.firstChild.nodeValue.trim());
+        curEl.textContent = newEl.textContent;
+      };
+
+      // Update changed ATTRIBUTE
+      if (!newEl.isEqualNode(curEl)) {
+        // console.log(Array.from(newEl.attributes));
+        Array.from(newEl.attributes).forEach(attr => curEl.setAttribute(attr.name, attr.value));
+      }
+    });
   }
 
   _clear(markup) {
